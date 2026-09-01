@@ -2,7 +2,7 @@ void main() {
   double luas = hitungLuasPersegiPanjang(10, 10);
   print('luas persegi panjang : $luas');
 
-  Profil profil1 = Profil(nama: 'Rijal Dzaki', nim: '24410702040');
+  Profil profil1 = Profil(nama: 'Rijal Dzaki', nim: '244107020240');
   String emailDitampilkan = profil1.email ?? 'Belum ada email';
   print('Nama ${profil1.nama}, Nim ${profil1.nim}, Email : $emailDitampilkan');
 }
