@@ -65,12 +65,20 @@ Dari hasil percobaan mengubah kode UI di `main.dart`, berikut adalah perbedaan d
 Pada tugas mini ini, informasi NIM dan juga kelas telah ditambahkan pada tampilan utama aplikasi Profil Mahasiswa. Berikut adalah potongan kode yang disematkan pada bagian `Column` di dalam file `main.dart`:
 
 ```dart
-Text('Mochammad Rijal Dzaki Rifki Afifudin', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
-SizedBox(height: 8),
-Text('NIM: 244107020250', style: TextStyle(fontSize: 18)),
-Text('Kelas: TI-3C | Absen: 14', style: TextStyle(fontSize: 18)),
-SizedBox(height: 16),
-Text('Pemrograman Mobile — Minggu 1'),
+              Text(
+                'Mochammad Rijal Dzaki Rifki Afifudin',
+                textAlign: TextAlign.center,
+                style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+              ),
+              SizedBox(height: 8),
+              Text('NIM: 244107020240', style: TextStyle(fontSize: 18)),
+              SizedBox(height: 4),
+              Text(
+                '244107020240@student.polinema.ac.id',
+                style: TextStyle(fontSize: 18),
+              ),
+              SizedBox(height: 16),
+              Text('Pemrograman Mobile — Minggu 1'),
 ```
 
 **Hasil Run Aplikasi**  
