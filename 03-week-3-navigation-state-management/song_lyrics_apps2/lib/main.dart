@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:audioplayers/audioplayers.dart';
+import 'gallery/gallery_home.dart';
 
 void main() {
   runApp(const MyApp());
@@ -28,8 +29,6 @@ class LayarLirik extends StatefulWidget {
 class _LayarLirikState extends State<LayarLirik> {
   final AudioPlayer _audioPlayer = AudioPlayer();
   bool _isPlaying = false;
-  Duration _duration = Duration.zero;
-  Duration _position = Duration.zero;
 
   @override
   void initState() {
@@ -43,24 +42,6 @@ class _LayarLirikState extends State<LayarLirik> {
         });
       }
     });
-
-    // Mendengarkan durasi lagu
-    _audioPlayer.onDurationChanged.listen((newDuration) {
-      if (mounted) {
-        setState(() {
-          _duration = newDuration;
-        });
-      }
-    });
-
-    // Mendengarkan posisi waktu musik
-    _audioPlayer.onPositionChanged.listen((newPosition) {
-      if (mounted) {
-        setState(() {
-          _position = newPosition;
-        });
-      }
-    });
   }
 
   @override
@@ -69,18 +50,69 @@ class _LayarLirikState extends State<LayarLirik> {
     super.dispose();
   }
 
-  // Format durasi
-  String formatTime(Duration duration) {
-    String twoDigits(int n) => n.toString().padLeft(2, '0');
-    final minutes = twoDigits(duration.inMinutes.remainder(60));
-    final seconds = twoDigits(duration.inSeconds.remainder(60));
-    return "${duration.inMinutes.remainder(60)}:$seconds";
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
+      appBar: AppBar(
+        title: const Text('Lirik Lagu', style: TextStyle(fontWeight: FontWeight.bold)),
+        backgroundColor: Colors.white,
+        foregroundColor: Colors.black,
+        elevation: 0,
+      ),
+      drawer: Drawer(
+        child: ListView(
+          padding: EdgeInsets.zero,
+          children: [
+            const DrawerHeader(
+              decoration: BoxDecoration(
+                color: Colors.black,
+              ),
+              child: Center(
+                child: Text(
+                  'Menu Navigasi',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+            ),
+            ListTile(
+              leading: const Icon(Icons.music_note),
+              title: const Text('Lirik Lagu'),
+              onTap: () {
+                Navigator.pop(context); // Tutup drawer
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.dashboard_customize),
+              title: const Text('Eksperimen Galeri Widget'),
+              onTap: () {
+                Navigator.pop(context); // Tutup drawer
+                // Menggunakan PageRouteBuilder untuk mendemonstrasikan custom transition (Widget ke-6)
+                Navigator.push(
+                  context,
+                  PageRouteBuilder(
+                    pageBuilder: (context, animation, secondaryAnimation) => const GalleryHome(),
+                    transitionsBuilder: (context, animation, secondaryAnimation, child) {
+                      var begin = const Offset(1.0, 0.0);
+                      var end = Offset.zero;
+                      var curve = Curves.ease;
+                      var tween = Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
+                      return SlideTransition(
+                        position: animation.drive(tween),
+                        child: child,
+                      );
+                    },
+                  ),
+                );
+              },
+            ),
+          ],
+        ),
+      ),
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(16.0),
@@ -161,84 +193,10 @@ class _LayarLirikState extends State<LayarLirik> {
 
               const SizedBox(height: 20),
 
-              // Progress Bar (Music)
-              Row(
-                children: [
-                  Text(
-                    formatTime(_position),
-                    style: const TextStyle(
-                      color: Colors.black,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  const SizedBox(width: 10),
-                  Expanded(
-                    child: SliderTheme(
-                      data: SliderTheme.of(context).copyWith(
-                        trackHeight: 4.0,
-                        thumbShape: const RoundSliderThumbShape(
-                          enabledThumbRadius: 6.0,
-                        ),
-                        overlayShape: const RoundSliderOverlayShape(
-                          overlayRadius: 14.0,
-                        ),
-                        activeTrackColor: Colors.black,
-                        inactiveTrackColor: Colors.grey.shade300,
-                        thumbColor: Colors.black,
-                      ),
-                      child: Slider(
-                        min: 0,
-                        max: _duration.inSeconds.toDouble() > 0
-                            ? _duration.inSeconds.toDouble()
-                            : 1,
-                        value: _position.inSeconds.toDouble().clamp(
-                          0.0,
-                          _duration.inSeconds.toDouble() > 0
-                              ? _duration.inSeconds.toDouble()
-                              : 1,
-                        ),
-                        onChanged: (value) async {
-                          final position = Duration(seconds: value.toInt());
-                          await _audioPlayer.seek(position);
-                        },
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 10),
-                  Text(
-                    formatTime(_duration),
-                    style: const TextStyle(
-                      color: Colors.black,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ],
-              ),
-
-              const SizedBox(height: 20),
-
               // Bagian Kontrol Navigasi Musik
               Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  GestureDetector(
-                    onTap: () {
-                      _audioPlayer.seek(Duration.zero); // Kembali ke awal
-                    },
-                    child: Container(
-                      width: 55,
-                      height: 55,
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        border: Border.all(color: Colors.black, width: 2),
-                      ),
-                      child: const Icon(
-                        Icons.skip_previous,
-                        size: 32,
-                        color: Colors.black,
-                      ),
-                    ),
-                  ),
                   GestureDetector(
                     onTap: () async {
                       if (_isPlaying) {
@@ -248,31 +206,16 @@ class _LayarLirikState extends State<LayarLirik> {
                       }
                     },
                     child: Container(
-                      width: 55,
-                      height: 55,
+                      width: 70,
+                      height: 70,
                       decoration: BoxDecoration(
                         color: Colors.white,
                         border: Border.all(color: Colors.black, width: 2),
+                        shape: BoxShape.circle,
                       ),
                       child: Icon(
                         _isPlaying ? Icons.pause : Icons.play_arrow,
-                        size: 32,
-                        color: Colors.black,
-                      ),
-                    ),
-                  ),
-                  GestureDetector(
-                    onTap: () {},
-                    child: Container(
-                      width: 55,
-                      height: 55,
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        border: Border.all(color: Colors.black, width: 2),
-                      ),
-                      child: const Icon(
-                        Icons.skip_next,
-                        size: 32,
+                        size: 40,
                         color: Colors.black,
                       ),
                     ),
