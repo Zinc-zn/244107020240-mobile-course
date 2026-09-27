@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../models/lyric_line.dart';
+import '../models/song.dart';
 
 /// Lembar lirik bergaya Spotify:
 /// * baris yang sedang diputar diperbesar dan disorot putih,
@@ -132,31 +132,13 @@ class _SpotifyLyricsState extends State<SpotifyLyrics> {
 
   Widget _buildLine(int index, bool isActive) {
     final line = widget.timeline.lines[index];
-
-    // Penanda bagian (Verse/Chorus) tampil kecil dan tidak pernah menyala.
-    if (LyricTimeline.isHeader(line.text)) {
-      return Padding(
-        key: _lineKeys[index],
-        padding: const EdgeInsets.only(top: 26, bottom: 8),
-        child: Text(
-          line.text.toUpperCase(),
-          style: const TextStyle(
-            color: Color(0xFF6A6A6A),
-            fontSize: 11,
-            fontWeight: FontWeight.w700,
-            letterSpacing: 2,
-          ),
-        ),
-      );
-    }
-
-    final isAdLib = LyricTimeline.isAdLib(line.text);
+    final isAdLib = line.text.startsWith('(') && line.text.endsWith(')');
     final baseColor = isAdLib ? const Color(0xFF7A7A7A) : _dim;
 
     return GestureDetector(
       key: _lineKeys[index],
       behavior: HitTestBehavior.opaque,
-      onTap: () => widget.onSeek(line.start),
+      onTap: () => widget.onSeek(line.startDuration),
       child: AnimatedDefaultTextStyle(
         duration: const Duration(milliseconds: 260),
         curve: Curves.easeOut,
