@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+
 import 'navigasi_demo.dart';
 import 'dialog_demo.dart';
 import 'animasi_demo.dart';
@@ -11,6 +12,7 @@ import 'text_icon_demo.dart';
 import 'struktur_demo.dart';
 import 'layout_demo.dart';
 import 'camera_demo.dart';
+import 'gps_demo.dart';
 
 class GalleryHome extends StatelessWidget {
   const GalleryHome({super.key});
@@ -18,18 +20,51 @@ class GalleryHome extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final List<Map<String, dynamic>> categories = [
-      {'title': 'Navigasi', 'icon': Icons.navigation, 'page': const NavigasiDemo()},
-      {'title': 'Dialog & Feedback', 'icon': Icons.chat_bubble, 'page': const DialogDemo()},
-      {'title': 'Animasi', 'icon': Icons.animation, 'page': const AnimasiDemo()},
+      {
+        'title': 'Navigasi',
+        'icon': Icons.navigation,
+        'page': const NavigasiDemo(),
+      },
+      {
+        'title': 'Dialog & Feedback',
+        'icon': Icons.chat_bubble,
+        'page': const DialogDemo(),
+      },
+      {
+        'title': 'Animasi',
+        'icon': Icons.animation,
+        'page': const AnimasiDemo(),
+      },
       {'title': 'Async & State', 'icon': Icons.sync, 'page': const AsyncDemo()},
-      {'title': 'List & Scrolling', 'icon': Icons.list, 'page': const ScrollDemo()},
-      {'title': 'Gambar & Media', 'icon': Icons.image, 'page': const MediaDemo()},
+      {
+        'title': 'List & Scrolling',
+        'icon': Icons.list,
+        'page': const ScrollDemo(),
+      },
+      {
+        'title': 'Gambar & Media',
+        'icon': Icons.image,
+        'page': const MediaDemo(),
+      },
       {'title': 'Input & Form', 'icon': Icons.input, 'page': const InputDemo()},
-      {'title': 'Tombol', 'icon': Icons.smart_button, 'page': const ButtonDemo()},
-      {'title': 'Teks & Ikon', 'icon': Icons.text_fields, 'page': const TextIconDemo()},
-      {'title': 'Struktural & App', 'icon': Icons.architecture, 'page': const StrukturDemo()},
+      {
+        'title': 'Tombol',
+        'icon': Icons.smart_button,
+        'page': const ButtonDemo(),
+      },
+      {
+        'title': 'Teks & Ikon',
+        'icon': Icons.text_fields,
+        'page': const TextIconDemo(),
+      },
+      {
+        'title': 'Struktural & App',
+        'icon': Icons.architecture,
+        'page': const StrukturDemo(),
+      },
       {'title': 'Layout', 'icon': Icons.dashboard, 'page': const LayoutDemo()},
       {'title': 'Kamera', 'icon': Icons.camera_alt, 'page': const CameraDemo()},
+      {'title': 'GPS', 'icon': Icons.location_on, 'page': const GeolocatorWidget()},
     ];
 
     return Scaffold(
