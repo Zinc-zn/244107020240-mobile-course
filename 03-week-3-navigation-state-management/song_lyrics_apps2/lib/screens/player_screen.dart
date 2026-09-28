@@ -4,9 +4,16 @@ import '../models/song.dart';
 import '../services/player_service.dart';
 import '../widgets/song_cover.dart';
 import '../widgets/spotify_lyrics.dart';
-import 'home_screen.dart' show kBg, kGreen, kTextPrimary, kTextSecondary;
+import 'home_screen.dart'
+    show kBg, kGreen, kTextPrimary, kTextSecondary, formatDuration;
 
 /// Layar pemutar lagu dengan lirik yang mengikuti jalannya lagu.
+///
+/// Lagu yang ditampilkan selalu diambil dari [PlayerService.current], bukan dari
+/// parameter di konstruktor. Dengan begitu saat lagu berganti (lewat tombol
+/// berikutnya/sebelumnya atau daftar lagu), cover, judul, lirik, dan durasi di
+/// layar ini ikut berganti — hanya lagu pertama yang dipakai sebagai cadangan
+/// sebelum pemutar siap.
 ///
 /// Di layar lebar (web/desktop) tata letak dipecah dua kolom: cover dan kontrol
 /// di kiri, lirik di kanan. Di layar sempit, semuanya ditumpuk vertikal dan
@@ -16,13 +23,17 @@ class PlayerScreen extends StatelessWidget {
   const PlayerScreen({super.key, required this.player, required this.song});
 
   final PlayerService player;
+
+  /// Lagu pembuka; digantikan oleh [PlayerService.current] saat pemutar aktif.
   final Song song;
 
   @override
   Widget build(BuildContext context) {
     return AnimatedBuilder(
       animation: player,
+      // Dengarkan PlayerService supaya lagu aktif selalu yang terbaru.
       builder: (context, _) {
+        final current = player.current ?? song;
         final isWide = MediaQuery.of(context).size.width >= 860;
         return Scaffold(
           backgroundColor: kBg,
@@ -44,7 +55,7 @@ class PlayerScreen extends StatelessWidget {
                         letterSpacing: 1.4,
                         fontWeight: FontWeight.w600)),
                 const SizedBox(height: 2),
-                Text(song.album.toUpperCase(),
+                Text(current.album.toUpperCase(),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: const TextStyle(
@@ -61,7 +72,9 @@ class PlayerScreen extends StatelessWidget {
             ],
           ),
           body: SafeArea(
-            child: isWide ? _buildWide(context) : _buildNarrow(context),
+            child: isWide
+                ? _buildWide(context, current)
+                : _buildNarrow(context, current),
           ),
         );
       },
@@ -70,7 +83,7 @@ class PlayerScreen extends StatelessWidget {
 
   // ---------------------------------------------------------------- lebar
 
-  Widget _buildWide(BuildContext context) {
+  Widget _buildWide(BuildContext context, Song song) {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -84,7 +97,7 @@ class PlayerScreen extends StatelessWidget {
                 const SizedBox(height: 28),
                 _TitleRow(player: player, song: song),
                 const SizedBox(height: 18),
-                _ProgressBar(player: player),
+                _ProgressBar(player: player, song: song),
                 const SizedBox(height: 18),
                 _Controls(player: player),
               ],
@@ -99,7 +112,7 @@ class PlayerScreen extends StatelessWidget {
 
   // -------------------------------------------------------------- sempit
 
-  Widget _buildNarrow(BuildContext context) {
+  Widget _buildNarrow(BuildContext context, Song song) {
     // Tinggi cover dibatasi agar kontrol dan lirik tetap kebagian ruang pada
     // jendela pendek — mencegah overflow yang muncul di layar web.
     final screenH = MediaQuery.of(context).size.height;
@@ -122,7 +135,7 @@ class PlayerScreen extends StatelessWidget {
             children: [
               _TitleRow(player: player, song: song),
               const SizedBox(height: 12),
-              _ProgressBar(player: player, compact: true),
+              _ProgressBar(player: player, song: song, compact: true),
               const SizedBox(height: 8),
               _Controls(player: player, compact: true),
             ],
@@ -210,23 +223,24 @@ class _TitleRow extends StatelessWidget {
 }
 
 class _ProgressBar extends StatelessWidget {
-  const _ProgressBar({required this.player, this.compact = false});
+  const _ProgressBar({
+    required this.player,
+    required this.song,
+    this.compact = false,
+  });
 
   final PlayerService player;
+  final Song song;
   final bool compact;
-
-  static String fmt(Duration d) {
-    final m = d.inMinutes.remainder(60).toString().padLeft(1, '0');
-    final s = d.inSeconds.remainder(60).toString().padLeft(2, '0');
-    return '$m:$s';
-  }
 
   @override
   Widget build(BuildContext context) {
-    final total = player.duration.inMilliseconds == 0
-        ? 30000
-        : player.duration.inMilliseconds;
-    final value = player.position.inMilliseconds.clamp(0, total).toDouble();
+    // Durasi asli lagu dipakai selama pemutar belum melaporkan durasinya,
+    // supaya panjang trek tidak lagi dipatok 30 detik.
+    final fallback = Duration(milliseconds: (song.durationSeconds * 1000).round());
+    final total = player.duration.inMilliseconds > 0 ? player.duration : fallback;
+    final totalMs = total.inMilliseconds <= 0 ? 1 : total.inMilliseconds;
+    final value = player.position.inMilliseconds.clamp(0, totalMs).toDouble();
 
     return Column(
       children: [
@@ -242,7 +256,7 @@ class _ProgressBar extends StatelessWidget {
           ),
           child: Slider(
             value: value,
-            max: total.toDouble(),
+            max: totalMs.toDouble(),
             onChanged: (v) =>
                 player.seek(Duration(milliseconds: v.round())),
           ),
@@ -252,9 +266,9 @@ class _ProgressBar extends StatelessWidget {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(fmt(player.position),
+              Text(formatDuration(player.position),
                   style: const TextStyle(color: kTextSecondary, fontSize: 11)),
-              Text(fmt(player.duration),
+              Text(formatDuration(total),
                   style: const TextStyle(color: kTextSecondary, fontSize: 11)),
             ],
           ),
