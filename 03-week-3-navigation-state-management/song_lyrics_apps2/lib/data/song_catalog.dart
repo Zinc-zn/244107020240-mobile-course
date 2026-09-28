@@ -2,8 +2,8 @@
 //
 // Audio : klip preview resmi 30 detik (iTunes/Apple Music Preview API).
 // Cover : artwork resmi 600x600 dari katalog iTunes.
-// Lirik : lrclib.net; penanda waktu sudah digeser sebesar `previewStart`
-//         supaya baris yang tersorot cocok dengan klip audio yang diputar.
+// Lirik : lrclib.net; penanda waktu dipakai apa adanya dan menempel pada
+//         rekaman aslinya, sehingga lirik sinkron dengan audio yang diputar.
 
 import '../models/song.dart';
 
@@ -16,7 +16,7 @@ const List<Song> kSongCatalog = [
     album: "mama's boy (deluxe)",
     cover: "assets/covers/lany_you.jpg",
     audio: "assets/audio/lany_you.m4a",
-    previewStart: 28.0,
+    durationSeconds: 30.02,
     lyrics: [
       LyricLine(12.61, "Like water in the desert"),
       LyricLine(17.75, "Impossible to find"),
@@ -67,7 +67,7 @@ const List<Song> kSongCatalog = [
     album: "Make Out - EP",
     cover: "assets/covers/lany_ilysb.jpg",
     audio: "assets/audio/lany_ilysb.m4a",
-    previewStart: 47.0,
+    durationSeconds: 30.02,
     lyrics: [
       LyricLine(1.93, "Oh, my heart hurts so good"),
       LyricLine(4.32, "I love you, babe, so bad, so bad"),
@@ -107,7 +107,7 @@ const List<Song> kSongCatalog = [
     album: "Malibu Nights",
     cover: "assets/covers/lany_malibu.jpg",
     audio: "assets/audio/lany_malibu.m4a",
-    previewStart: 60.0,
+    durationSeconds: 30.02,
     lyrics: [
       LyricLine(0.89, "I feel my body giving up"),
       LyricLine(4.38, "Can I hold on for another night?"),
@@ -163,7 +163,7 @@ const List<Song> kSongCatalog = [
     album: "I Quit Drinking - Single",
     cover: "assets/covers/lany_quit.jpg",
     audio: "assets/audio/lany_quit.m4a",
-    previewStart: 45.0,
+    durationSeconds: 30.02,
     lyrics: [
       LyricLine(1.29, "You're the only thing I want when one drop hits my mouth"),
       LyricLine(6.33, "Baby, you're the reason"),
@@ -212,7 +212,7 @@ const List<Song> kSongCatalog = [
     album: "LANY",
     cover: "assets/covers/lany_goodgirls.jpg",
     audio: "assets/audio/lany_goodgirls.m4a",
-    previewStart: 40.0,
+    durationSeconds: 30.02,
     lyrics: [
       LyricLine(0.0, "Don't start thinking"),
       LyricLine(1.02, "Things have kinda changed"),
@@ -266,7 +266,7 @@ const List<Song> kSongCatalog = [
     album: "The Life of a Showgirl: The Encore",
     cover: "assets/covers/taylor.jpg",
     audio: "assets/audio/taylor.m4a",
-    previewStart: 55.0,
+    durationSeconds: 30.02,
     lyrics: [
       LyricLine(5.98, "Someone else what to do"),
       LyricLine(7.8, "But if you wanna party with somebody who might know"),
@@ -311,7 +311,7 @@ const List<Song> kSongCatalog = [
     album: "Terbelah Jadi Dua - Single",
     cover: "assets/covers/gloria.jpg",
     audio: "assets/audio/gloria.m4a",
-    previewStart: 40.0,
+    durationSeconds: 30.02,
     lyrics: [
       LyricLine(1.55, "Juga disakiti"),
       LyricLine(9.23, "Hatimu libatkan yang lain"),
@@ -352,7 +352,7 @@ const List<Song> kSongCatalog = [
     album: "Dinda - Single",
     cover: "assets/covers/masdo.jpg",
     audio: "assets/audio/masdo.m4a",
-    previewStart: 47.0,
+    durationSeconds: 30.02,
     lyrics: [
       LyricLine(0.49, "Dinda kanda pergi hanya seketika cuma"),
       LyricLine(8.66, "Inikan semua demi masa depan kita"),
@@ -387,7 +387,7 @@ const List<Song> kSongCatalog = [
     album: "For You",
     cover: "assets/covers/fatin.jpg",
     audio: "assets/audio/fatin.m4a",
-    previewStart: 50.0,
+    durationSeconds: 30.02,
     lyrics: [
       LyricLine(0.24, "Aku pun merasakannya"),
       LyricLine(3.89, "Gelisah di setiap malam"),
@@ -435,7 +435,7 @@ const List<Song> kSongCatalog = [
     album: "Negoro Angin - Single",
     cover: "assets/covers/muslih.jpg",
     audio: "assets/audio/muslih.m4a",
-    previewStart: 18.0,
+    durationSeconds: 30.02,
     lyrics: [
       LyricLine(0.78, "Tak tempuh sewelas sewu kilometer"),
       LyricLine(7.13, "Nyusul awakmu sing nate"),
@@ -495,7 +495,7 @@ const List<Song> kSongCatalog = [
     album: "Royalty Free Instrumental",
     cover: "assets/covers/rf_monkeys.jpg",
     audio: "assets/audio/rf_monkeys.mp3",
-    previewStart: 0,
+    durationSeconds: 30.02,
     lyrics: [],
   ),
 ];

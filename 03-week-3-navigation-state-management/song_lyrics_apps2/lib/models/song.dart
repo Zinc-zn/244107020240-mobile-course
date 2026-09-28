@@ -27,11 +27,14 @@ class Song {
   final String cover;
 
   /// Path aset audio (mis. `assets/audio/lany_you.m4a`).
+  ///
+  /// Berkas berisi lagu utuh, bukan cuplikan, sehingga lirik bisa mengikuti
+  /// lagu dari awal sampai akhir.
   final String audio;
 
-  /// Detik pada lagu asli saat audio yang tersedia mulai diputar. Dipakai
-  /// untuk menyesuaikan penanda waktu lirik dengan klip yang diputar.
-  final double previewStart;
+  /// Durasi audio dalam detik. Dipakai sebagai panjang trek sebelum pemutar
+  /// melaporkan durasi aslinya, supaya progres tidak lagi dipatok 30 detik.
+  final double durationSeconds;
 
   final List<LyricLine> lyrics;
 
@@ -42,7 +45,7 @@ class Song {
     required this.album,
     required this.cover,
     required this.audio,
-    this.previewStart = 0,
+    this.durationSeconds = 0,
     this.lyrics = const [],
   });
 

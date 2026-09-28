@@ -13,6 +13,13 @@ const Color kGreen = Color(0xFF1DB954);
 const Color kTextPrimary = Color(0xFFFFFFFF);
 const Color kTextSecondary = Color(0xFFB3B3B3);
 
+/// Format durasi menjadi `m:ss`, dipakai di daftar lagu dan mini player.
+String formatDuration(Duration d) {
+  final m = d.inMinutes.remainder(60).toString().padLeft(1, '0');
+  final s = d.inSeconds.remainder(60).toString().padLeft(2, '0');
+  return '$m:$s';
+}
+
 /// Beranda bergaya Spotify: pencarian, lagu trending, dan artis populer.
 ///
 /// Saat sebuah cover ditekan, lagu langsung diputar dan layar pemutar dibuka —
@@ -673,7 +680,8 @@ class _SongRow extends StatelessWidget {
                 ),
               ),
             const SizedBox(width: 12),
-            const Text('0:30', style: TextStyle(color: kTextSecondary, fontSize: 13)),
+            Text(formatDuration(Duration(milliseconds: (song.durationSeconds * 1000).round())),
+                style: const TextStyle(color: kTextSecondary, fontSize: 13)),
           ],
         ),
       ),
@@ -738,21 +746,18 @@ class _MiniPlayer extends StatelessWidget {
   final PlayerService player;
   final VoidCallback onTap;
 
-  String _fmt(Duration d) {
-    final m = d.inMinutes.remainder(60).toString().padLeft(1, '0');
-    final s = d.inSeconds.remainder(60).toString().padLeft(2, '0');
-    return '$m:$s';
-  }
-
   @override
   Widget build(BuildContext context) {
     final song = player.current!;
     final wide = MediaQuery.of(context).size.width > 480;
-    final total = player.duration.inMilliseconds == 0
-        ? 1
-        : player.duration.inMilliseconds;
+    // Panjang trek memakai durasi asli lagu; pemutar mengisinya begitu audio
+    // siap. Ini menggantikan nilai tetap 30 detik sebelumnya.
+    final total = player.duration.inMilliseconds > 0
+        ? player.duration
+        : Duration(milliseconds: (song.durationSeconds * 1000).round());
+    final totalMs = total.inMilliseconds <= 0 ? 1 : total.inMilliseconds;
     final progress =
-        (player.position.inMilliseconds / total).clamp(0.0, 1.0);
+        (player.position.inMilliseconds / totalMs).clamp(0.0, 1.0);
 
     return Material(
       color: kSurface,
@@ -808,7 +813,7 @@ class _MiniPlayer extends StatelessWidget {
                       icon: const Icon(Icons.skip_next,
                           color: kTextPrimary, size: 26),
                     ),
-                    Text('${_fmt(player.position)} / 0:30',
+                    Text('${formatDuration(player.position)} / ${formatDuration(total)}',
                         style: const TextStyle(
                             color: kTextSecondary, fontSize: 12)),
                   ],
