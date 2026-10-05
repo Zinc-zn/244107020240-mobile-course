@@ -1,9 +1,14 @@
+import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:week5_offline_notes/data/local/note.dart';
+import 'package:week5_offline_notes/data/remote/post.dart';
 import 'package:week5_offline_notes/data/repositories/note_repository.dart';
+import 'package:week5_offline_notes/data/repositories/post_repository.dart';
 import 'package:week5_offline_notes/data/sync.dart';
 import 'package:week5_offline_notes/providers/note_providers.dart';
+import 'package:week5_offline_notes/providers/offline_providers.dart';
+import 'package:week5_offline_notes/providers/post_providers.dart';
 
 class FakeNoteRepository extends NoteRepository {
   FakeNoteRepository({List<Note> items = const [], this.throwError = false})
@@ -28,6 +33,30 @@ class FakeNoteRepository extends NoteRepository {
       items[i] = items[i].copyWith(dirty: false);
     }
   }
+}
+
+class FakePostRepository extends PostRepository {
+  FakePostRepository({List<Post> cached = const [], this.failNetwork = false})
+      : _cached = [...cached],
+        super(dio: Dio(), openDb: () => throw UnimplementedError());
+
+  final List<Post> _cached;
+  final bool failNetwork;
+
+  @override
+  Future<List<Post>> readCachedPosts() async => _cached;
+
+  @override
+  Future<List<Post>> fetchAndCache() async {
+    if (failNetwork) throw Exception('network down (simulasi)');
+    return _cached;
+  }
+}
+
+/// Memaksa keadaan offline secara deterministik tanpa menyentuh jaringan.
+class AlwaysOffline extends ForceOfflineNotifier {
+  @override
+  bool build() => true;
 }
 
 Note _note(String title, {bool dirty = false, DateTime? at}) =>
@@ -112,6 +141,43 @@ void main() {
       final remote = _note('server', at: DateTime(2026, 9, 18, 11));
       expect(resolveConflict(local, remote).title, 'server');
       expect(resolveConflict(remote, local).title, 'server');
+    });
+  });
+
+  group('Cache-first posts', () {
+    test('postsProvider mengembalikan cache saat offline', () async {
+      final container = ProviderContainer(
+        overrides: [
+          forceOfflineProvider.overrideWith(() => AlwaysOffline()),
+          postRepositoryProvider.overrideWithValue(
+            FakePostRepository(cached: [
+              const Post(id: 1, title: 'cache 1', body: 'isi satu'),
+              const Post(id: 2, title: 'cache 2', body: 'isi dua'),
+            ]),
+          ),
+        ],
+      );
+      addTearDown(container.dispose);
+
+      final posts = await container.read(postsProvider.future);
+      expect(posts.length, 2);
+      expect(posts.first.title, 'cache 1');
+    });
+
+    test('postsProvider error saat offline tanpa cache', () async {
+      final container = ProviderContainer(
+        retry: (count, error) => null,
+        overrides: [
+          forceOfflineProvider.overrideWith(() => AlwaysOffline()),
+          postRepositoryProvider.overrideWithValue(FakePostRepository()),
+        ],
+      );
+      addTearDown(container.dispose);
+
+      await expectLater(
+        container.read(postsProvider.future),
+        throwsA(isA<OfflineException>()),
+      );
     });
   });
 }
